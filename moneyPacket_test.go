@@ -4,31 +4,27 @@ import (
 	"fmt"
 	"sync"
 	"testing"
-	"time"
 )
 
 func TestMoneyPacket(t *testing.T) {
-	//money的值已经扩大100倍。实际是20RMB，3个人分
-	leftMoneyPackage := &MoneyPackage{2000, 3}
-	end := false
+	leftMoneyPackage := &MoneyPackage{20.00, 3}
+
 	var mutex sync.Mutex
+	var wg sync.WaitGroup
 
-	for {
-		if end {
-			break
-		}
-
+	for i := 0; i < int(leftMoneyPackage.Size); i++ {
+		wg.Add(1)
 		go func() {
 			mutex.Lock()
 			if leftMoneyPackage.Size <= 0 {
-				end = true
 				return
 			}
 			money := GetRandMoney(leftMoneyPackage)
 			fmt.Println(money)
 			mutex.Unlock()
+			wg.Done()
 		}()
 	}
 
-	time.Sleep(2 * time.Second)
+	wg.Wait()
 }

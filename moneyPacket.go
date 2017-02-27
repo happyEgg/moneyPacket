@@ -6,37 +6,43 @@
 package moneyPacket
 
 import (
+	"math"
 	"math/rand"
 	"time"
 )
 
 type MoneyPackage struct {
-	Money int32
+	Money float64
 	Size  int32
 }
 
 func GetRandMoney(moneyPackage *MoneyPackage) float64 {
+	// moneyPackage.Money *= 100
 	if moneyPackage.Size == 1 {
 		moneyPackage.Size--
-		return float64(moneyPackage.Money) / 100
+		return moneyPackage.Money
 	}
 
-	var min int32 = 1
-	max := (moneyPackage.Money / moneyPackage.Size) * 2
+	var min float64 = 0.01
+	max := (moneyPackage.Money / float64(moneyPackage.Size)) * 2
 
-	money := (randInt() * max) / 100
+	money := math.Floor((randNum() * max * 100)) / 100
 
 	if money <= min {
 		money = min
 	}
 
 	moneyPackage.Size--
-	moneyPackage.Money -= int32(money)
+	moneyPackage.Money -= money
 
-	return float64(money) / 100
+	//避免出现精度的问题
+	moneyPackage.Money = math.Floor(moneyPackage.Money*100) / 100
+
+	return money
 }
 
-func randInt() int32 {
+//获取随机数
+func randNum() float64 {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return r.Int31n(100)
+	return r.Float64()
 }
